@@ -8,7 +8,7 @@ import (
 
 func main() {
 	// Establece la conexión con el cliente (que ahora actúa como servidor)
-	conn, err := rpc.Dial("tcp", "localhost:8095")
+	conn, err := rpc.Dial("tcp", "localhost:8080")
 	if err != nil {
 		log.Fatal("Error al establecer la conexión con el cliente:", err)
 	}
