@@ -1,0 +1,16 @@
+syntax = "proto3";
+
+package grpc;
+option go_package = "github.com/victorian88/grpc";
+
+message CodeRequest {
+  string param = 1;
+}
+
+message CodeResponse {
+  string output = 1;
+}
+
+service CodeExecutionService {
+  rpc ExecuteCode(CodeRequest) returns (CodeResponse) {}
+}
