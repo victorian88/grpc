@@ -3,6 +3,7 @@ package main
 import (
 	"log"
 
+	pb "github.com/victorian88/grpc"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 )
@@ -18,6 +19,10 @@ func main() {
 	}
 	defer conn.Close()
 
-	//client := pb.NewCodeExecutionServiceClient(conn)
+	client := pb.NewCodeExecutionServiceClient(conn)
+	password := &pb.CodeRequest{
+		Pass: "Tecnico88",
+	}
+	callBireccionalStream(client, password)
 
 }
