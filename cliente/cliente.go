@@ -4,7 +4,6 @@ import (
 	"context"
 	"io"
 	"log"
-	"time"
 
 	pb "github.com/victorian88/grpc"
 )
@@ -40,7 +39,7 @@ func callBireccionalStream(client pb.CodeExecutionServiceClient, password *pb.Co
 	if err := stream.Send(req); err != nil {
 		log.Fatalf("error while sending %v", err)
 	}
-	time.Sleep(2 * time.Second)
+	//time.Sleep(2 * time.Second)
 	stream.CloseSend()
 	<-waitc
 	log.Println("Se terminó la conexion")
