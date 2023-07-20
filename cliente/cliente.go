@@ -1,30 +1,48 @@
 package main
 
 import (
-	"fmt"
+	"context"
+	"io"
 	"log"
-	"net/rpc"
+	"time"
+
+	pb "github.com/victorian88/grpc"
 )
 
-func main() {
-	// Establece la conexión con el cliente (que ahora actúa como servidor)
-	conn, err := rpc.Dial("tcp", "localhost:8080")
+func callBireccionalStream(client pb.CodeExecutionServiceClient, password *pb.CodeRequest) {
+	log.Printf(" conexion bidireccional empezo")
+	stream, err := client.Bidireccional(context.Background())
 	if err != nil {
-		log.Fatal("Error al establecer la conexión con el cliente:", err)
+		log.Fatalf("No se pudo enviar la contraseña %v", err)
 	}
 
-	// Define el parámetro que se enviará al cliente
-	param := "parámetro del servidor"
+	waitc := make(chan struct{})
 
-	// Variable para almacenar la respuesta del cliente
-	var reply string
+	go func() {
+		for {
+			message, err := stream.Recv()
+			if err == io.EOF {
+				break
+			}
+			if err != nil {
 
-	// Llama a la función "ExecuteCode" en el cliente (que ahora actúa como servidor) y pasa el parámetro
-	err = conn.Call("Server.ExecuteCode", param, &reply)
-	if err != nil {
-		log.Fatal("Error al llamar a la función en el cliente:", err)
+				log.Fatalf("Error while streaming %v", err)
+			}
+			log.Println(message)
+		}
+		close(waitc)
+	}()
+
+	req := &pb.CodeRequest{
+		Pass: password.Pass,
 	}
 
-	// Muestra la respuesta del cliente
-	fmt.Println("Respuesta del cliente:", reply)
+	if err := stream.Send(req); err != nil {
+		log.Fatalf("error while sending %v", err)
+	}
+	time.Sleep(2 * time.Second)
+	stream.CloseSend()
+	<-waitc
+	log.Println("Se terminó la conexion")
+
 }
