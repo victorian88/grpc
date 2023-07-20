@@ -1,47 +1,36 @@
 package main
 
 import (
-	"fmt"
+	//"context"
+	"io"
 	"log"
-	"net"
-	"net/rpc"
+
+	//"google.golang.org/grpc"
+
+	pb "github.com/victorian88/grpc" // Reemplaza con la ruta de importación correcta de tu archivo .pb.go generado
 )
 
-type Server struct {
+type helloserver struct {
+	pb.CodeExecutionServiceServer
 }
 
-func (s *Server) ExecuteCode(param string, reply *string) error {
-	// Aquí puedes ejecutar el código en el cliente utilizando el parámetro proporcionado por el servidor
-	fmt.Println("Ejecutando código en el cliente:", param)
+func (s *helloServer) Bidireccional(stream pb.CodeExecutionService_BidireccionalServer) error {
 
-	// Aquí puedes realizar cualquier procesamiento adicional necesario
-
-	// Establece la respuesta que se enviará de vuelta al servidor
-	*reply = "Código ejecutado correctamente en el cliente"
-
-	return nil
-}
-
-func main() {
-	server := new(Server)
-
-	// Registra el servidor para el servicio de RPC
-	rpc.Register(server)
-
-	// Crea un servidor RPC en un puerto específico
-	l, err := net.Listen("tcp", ":8095")
-	if err != nil {
-		log.Fatal("Error al iniciar el servidor:", err)
-	}
-
-	// Acepta conexiones entrantes en el servidor
-	for {
-		conn, err := l.Accept()
-		if err != nil {
-			log.Fatal("Error al aceptar la conexión:", err)
+	for { // Enviar el primer mensaje al cliente
+		req, err := stream.Recv()
+		if err == io.EOF {
+			return nil
 		}
+		if err != nil {
+			return err
+		}
+		log.Printf("se octuvo respuesta clave: %v", req.Pass)
+		res := &pb.CodeResponse{
+			Message: "Hello" + req.Pass,
+		}
+		if err := stream.Send(res); err != nil {
 
-		// Inicia el servidor RPC para manejar la conexión entrante
-		go rpc.ServeConn(conn)
+			return err
+		}
 	}
 }
