@@ -10,9 +10,9 @@ import (
 	pb "github.com/victorian88/grpc" // Reemplaza con la ruta de importación correcta de tu archivo .pb.go generado
 )
 
-type helloserver struct {
+/*type helloServer struct {
 	pb.CodeExecutionServiceServer
-}
+}*/
 
 func (s *helloServer) Bidireccional(stream pb.CodeExecutionService_BidireccionalServer) error {
 
